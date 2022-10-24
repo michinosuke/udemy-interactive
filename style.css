@@ -1,0 +1,33 @@
+.display-none {
+    height: 0;
+    opacity: 0;
+    transition: all .5s ease;
+}
+.display-active {
+    height: 100%;
+    opacity: 1;
+    transition: all .5s ease;
+}
+
+.ui-correct {
+    background-color: #c5deff;
+    transition: all .2s ease;
+}
+.ui-correct p:last-child:after {
+    color: #777;
+    font-size: 12px;
+    content: '(正解)'
+}
+.ui-incorrect {
+    background-color: #ffded6;
+    transition: all .2s ease;
+}
+.ui-incorrect p:last-child:after {
+    color: #777;
+    font-size: 12px;
+    content: '(不正解)'
+}
+
+.udlite-toggle-input-disabled {
+    cursor: pointer !important
+}
