@@ -14,20 +14,19 @@ let doneFirstReset = false
 
 const onClickChoice = (questionIndex, choiceIndex) => {
     const question = questions[questionIndex]
-    question.selects[choiceIndex] = true
+    question.selects[choiceIndex] = !question.selects[choiceIndex]
     const correctCount = question.answers.filter(answer => answer).length
     const selectedCount = question.selects.filter(select => select).length
     const choiceLabelElements = question.choiceLabelElements
     const answers = question.answers
     const explanationElement = question.explanationElement
 
-    console.log({correctCount})
-    console.log({selectedCount})
-
     if (!question.isExpand) {
         choiceLabelElements.forEach((choiceElement, choiceIndex) => {
             if (question.selects[choiceIndex]) {
                 choiceElement.classList.add('ui-selected')
+            } else {
+                choiceElement.classList.remove('ui-selected')
             }
         })
     }
