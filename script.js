@@ -141,8 +141,19 @@ const reset = () => {
         const statusButtons = [...detailedResultPanel.querySelectorAll(':scope div')].filter((div) => div.innerHTML === '未回答')
         statusButtons.forEach(statusButton => statusButton.classList.add('display-none'))
 
+        // n回目の試み → Udemy Interactive
         const title = [...detailedResultPanel.querySelectorAll(':scope div')].find((div) => div.innerHTML.match(/^\d+回目の試み$/))
         title.innerHTML = 'Udemy Interactive'
+
+        // ラジオボタンの非表示
+        const radios = document.querySelectorAll('input[checked]')
+        radios.forEach(radio => radio.checked = false)
+
+        // (正解) の非表示
+        const texts = [...detailedResultPanel.querySelectorAll(':scope div')].filter(div => ['(正解)', '(不正解)'].includes(div.innerHTML))
+        texts.forEach(text => text.classList.add('display-none'))
+
+        doneFirstReset = true
     }
 
     detailedResultPanel.classList.add('detailed-result-panel')
@@ -180,16 +191,6 @@ const reset = () => {
         buttonIchimonItto.addEventListener('click', () => setMode('ICHIMON_ITTO'))
         footer.prepend(buttonIchimonItto)
     }
-
-    // hide check
-    const radios = document.querySelectorAll('input[checked]')
-    radios.forEach(radio => radio.checked = false)
-
-    // hide text
-    const texts = [...document.querySelectorAll('div.udlite-heading-sm')]
-    texts.forEach(text => text.classList.add('display-none'))
-
-    doneFirstReset = true
 }
 
 const onLoadPage = () => {
