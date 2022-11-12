@@ -1,12 +1,12 @@
 .display-none {
     max-height: 0;
     opacity: 0;
-    transition: all .5s ease;
+    transition: max-height .8s ease, opacity .3s ease;
 }
 .display-active {
-    max-height: 100vh;
+    max-height: 1000vh;
     opacity: 1;
-    transition: all .5s ease;
+    transition: max-height 3s ease, opacity .5s ease;
 }
 
 .ui-correct {
@@ -33,16 +33,30 @@
     transition: all .5s ease;
 }
 
+.checkbox-svg-active {
+    color: white !important;
+    background-color: black !important;
+    fill: white !important;
+    transition: all .2s ease;
+}
+
+.checkbox-svg-none {
+    color: transparent !important;
+    background-color: transparent !important;
+    fill: transparent !important;
+    transition: all .2s ease;
+}
+
 .ui-selected {
     border: solid 2px #333;
-    transition: all .3s ease;
+    transition: border .1s ease;
 }
 
 .mode-button.selected {
     background-color: black;
     color: white !important;
     font-weight: bold;
-    pointer-events: none;
+    /* pointer-events: none; */
     transition: all .3s ease;
 }
 

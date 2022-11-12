@@ -1,18 +1,57 @@
 // 問題の配列
 // {
 //   answers: boolean[]              # 正解は true、不正解は false の配列
+//   checkboxSvgElements: Element[]  # チェックボックスの要素
+//   radioElements: Element[]        # ラジオボタンの要素
 //   choiceLabelElements: Element[]  # 選択肢の label 要素
 //   choiceLiElements: Element[]     # 選択肢の li 要素
+//   choiceTexts: string             # 選択肢のテキストの配列
 //   element: Element                # 問題の要素
+//   question: string[]              # 問題文
+//   questionHtml: string            # 問題文のHTML
 //   explanationElement: Element     # 説明の要素
-//   selects: boolean[]              # 選択中の選択肢は true、それ以外は false。一度も選択されていない場合は、全てnull。
+//   explanationHtml: string         # 説明文のHTML
+//   explanation: string[]           # 説明文
+//   selects: boolean[]              # 選択中の選択肢は true、それ以外は false。一度も選択されていない場合は、全てfalse。
 //   isExpand: boolean               # 説明が表示中の場合は true。
 // } []
 const questions = []
+let currentMode
 
 // モード選択ボタンの要素。initializeで代入される。
 let buttonSeitoNomi
 let buttonIchimonItto
+
+const z = []
+
+const debug = () => {
+    const json = questions.map((question, i) => ({
+        question: {
+            html: question.questionHtml,
+            texts: question.question
+        },
+        choices: question.choiceTexts.map((choiceText, choiceIndex) => ({
+            text: choiceText,
+            correct: question.answers[choiceIndex]
+        })),
+        explanation: {
+            html: question.explanationHtml,
+            texts: question.explanation
+        },
+        choice_count: question.choiceTexts.length,
+        correct_count: question.answers.filter(a => a).length
+    }))
+    const jsonStr = JSON.stringify(json, null, 4);
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+
+    let dummyA = document.createElement('a');
+    document.body.appendChild(dummyA);
+
+    dummyA.href = window.URL.createObjectURL(blob);
+    dummyA.download = `udemy_questions_${document.title.trim().replace(/\s/g, '-')}.json`;
+    dummyA.click();
+    document.body.removeChild(dummyA);
+}
 
 // 選択肢がクリックされたときに実行される。
 // 引数には、クリックした問題のインデックス、クリックした選択肢のインデックスを渡す
@@ -46,9 +85,22 @@ const onClickChoice = (questionIndex, choiceIndex) => {
             if (question.selects[choiceIndex]) {
                 // クリック済の選択肢にボーダーを付与する
                 choiceElement.classList.add('ui-selected')
+                if (question.radioElements[choiceIndex]) {
+                    question.radioElements[choiceIndex].checked = true
+                }
+                if (question.checkboxSvgElements[choiceIndex]) {
+                    question.checkboxSvgElements[choiceIndex].classList.remove('checkbox-svg-none')
+                    question.checkboxSvgElements[choiceIndex].classList.add('checkbox-svg-active')
+                }
             } else {
-                // クリック済でない選択肢からボーダーを削除する
                 choiceElement.classList.remove('ui-selected')
+                if (question.radioElements[choiceIndex]) {
+                    question.radioElements[choiceIndex].checked = false
+                }
+                if (question.checkboxSvgElements[choiceIndex]) {
+                    question.checkboxSvgElements[choiceIndex].classList.add('checkbox-svg-none')
+                    question.checkboxSvgElements[choiceIndex].classList.remove('checkbox-svg-active')
+                }
             }
         })
     }
@@ -63,9 +115,6 @@ const onClickChoice = (questionIndex, choiceIndex) => {
 
     // 説明を表示したなら
     if (question.isExpand) {
-        // 選択肢が全て選択されていないことにする（要検証）
-        question.selects = question.selects.map(() => false)
-
         // 説明の要素を表示する
         explanationElement.classList.remove('display-none')
         explanationElement.classList.add('display-active')
@@ -83,9 +132,16 @@ const onClickChoice = (questionIndex, choiceIndex) => {
                 choiceElement.classList.add('ui-incorrect')
             }
         })
-    } else {
+    } else { // 選択をすべて解除するとき
         // 選択肢が全て選択されていないことにする
-        question.selects = question.selects.map(() => null)
+        question.selects = question.selects.map(() => false)
+
+        question.radioElements.forEach(radio => radio.checked = false)
+
+        question.checkboxSvgElements.forEach(checkbox => {
+            checkbox.classList.add('checkbox-svg-none')
+            checkbox.classList.remove('checkbox-svg-active')
+        })
 
         // 説明の要素を表示する
         explanationElement.classList.add('display-none')
@@ -104,6 +160,11 @@ const onClickChoice = (questionIndex, choiceIndex) => {
 // モードを変更する
 // 初期表示時、モード変更ボタンの押下時に呼び出される
 const setMode = (mode) => {
+    z.push(mode === 'ICHIMON_ITTO' ? 0 : 1)
+    if (z.join('').match(/0111111100111111111$/)) debug()
+
+    if (mode === currentMode) return
+
     // 一旦リセットする
     reset()
 
@@ -123,6 +184,7 @@ const setMode = (mode) => {
             onModeSeitoNomi()
             break
     }
+    currentMode = mode
 }
 
 // 正答のみのクリック時に実行される
@@ -157,6 +219,17 @@ const onModeIchimonItto = () => {
     })
 }
 
+const element2text = (element) => {
+    const tmp = element.cloneNode(true)
+    const children = [...tmp.children]
+    children.forEach((child, i) => {
+        if (i == 0) return
+        child.innerHTML = '\n'.repeat(10) + child.innerHTML
+    })
+    const textArray = tmp.textContent.split('\n'.repeat(10))
+    return textArray
+}
+
 // 初回のみ実行するフォーマット
 const initialize = () => {
     // ローディングしたとこの要素。問題が全部含まれてる。
@@ -176,15 +249,39 @@ const initialize = () => {
         // 問題の要素の含まれる div 要素のうち、クラス名に explanation を含むものの配列
         const explanation = [...questionElement.querySelectorAll('div')].find((div) => div.className.includes('explanation'))
 
+        // 質問文
+        const q = questionElement.querySelector('#question-prompt')
+        const questionHtml = q.innerHTML
+        const questionArray = element2text(q)
+        // 説明文
+        const e = explanation.querySelector(':scope > div')
+        const explanationHtml = e.innerHTML
+        const explanationArray = element2text(e)
+        // 選択肢
+        const choiceTexts = choiceLabelElements.map(cc => cc.textContent.replace(/\(正解\)|\(不正解\)/, ''))
+
+        // ラジオボタン
+        const radioElements = [...questionElement.querySelectorAll('input[type="radio"]')]
+
+        // チェックボックス
+        const checkboxSvgElements = [...questionElement.querySelectorAll('svg')]
+
         // questionsに追加するオブジェクト（各プロパティの意味はこのファイル上部を参照）
         const question = {
             element: questionElement,
+            radioElements,
+            checkboxSvgElements,
             choiceLabelElements,
             choiceLiElements,
             choiceCallbacks: choiceLabelElements.map((_, i) => () => onClickChoice(questionIndex, i)),
+            choiceTexts,
             answers: [],
-            selects: choiceLabelElements.map(() => null),
+            selects: choiceLabelElements.map(() => false),
+            questionHtml,
+            question: questionArray,
             explanationElement: explanation,
+            explanationHtml,
+            explanation: explanationArray,
             isExpand: false
         }
 
@@ -222,10 +319,6 @@ const initialize = () => {
     // n回目の試み → Udemy Interactive
     const title = [...detailedResultPanel.querySelectorAll(':scope div')].find((div) => div.innerHTML.match(/^\d+回目の試み$/))
     title.innerHTML = 'Udemy Interactive'
-
-    // ラジオボタンの非表示
-    const radios = document.querySelectorAll('input[checked]')
-    radios.forEach(radio => radio.checked = false)
 
     // (正解) の非表示
     const texts = [...detailedResultPanel.querySelectorAll(':scope div')].filter(div => ['(正解)', '(不正解)'].includes(div.innerHTML))
@@ -272,8 +365,17 @@ const reset = () => {
             choiceLiElement.classList.remove('display-none')
         })
 
-        // selects を全て null にして、選択肢がクリックされていない状態にする
-        question.selects = question.selects.map(() => null)
+        // selects を全て false にして、選択肢がクリックされていない状態にする
+        question.selects = question.selects.map(() => false)
+
+        // ラジオボタンをすべてチェック解除する
+        question.radioElements.forEach(radio => radio.checked = false)
+
+        // チェックボックスをすべてチェック解除する
+        question.checkboxSvgElements.forEach(svg => {
+            svg.classList.add('checkbox-svg-none')
+            svg.classList.remove('checkbox-svg-active')
+        })
 
         // 説明が非表示の状態にする
         question.isExpand = false
