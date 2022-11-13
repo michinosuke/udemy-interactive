@@ -1,5 +1,6 @@
 .display-none {
     max-height: 0;
+    overflow-y: hidden;
     opacity: 0;
     transition: max-height .8s ease, opacity .3s ease;
 }
@@ -70,4 +71,43 @@
     left: 0;
     width: 100%;
     height: 100%;
+}
+
+.curriculum-item-view--scaled-height-limiter--1j3Pp.curriculum-item-view--no-sidebar--L4DBG {
+    max-height: none !important;
+    position: static !important;
+}
+
+.ud-app-loader.ud-component--footer--footer-container.ud-footer-container.ud-app-loaded {
+    max-height: 0 !important;
+    overflow: hidden !important;
+}
+.app--row--1ydzX.app--dashboard--dXVM6 {
+    max-height: 0 !important;
+    overflow: hidden !important;
+}
+
+.answer-time {
+    opacity: 0;
+    transition: opacity ease 2s;
+}
+.answer-time.active {
+    opacity: 1;
+    transition: opacity ease .2s;
+}
+
+.question {
+    transform: translateY(0px);
+    opacity: 1;
+    transition: all .5s ease-out;
+}
+.question.shuffle-out {
+    transform: translateY(80vh);
+    opacity: 0;
+    transition: all .5s ease-in;
+}
+.question.shuffle-in {
+    transform: translateY(80vh);
+    opacity: 0;
+    transition: all .5s ease-in;
 }

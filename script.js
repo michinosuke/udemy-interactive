@@ -15,12 +15,17 @@
 //   selects: boolean[]              # 選択中の選択肢は true、それ以外は false。一度も選択されていない場合は、全てfalse。
 //   isExpand: boolean               # 説明が表示中の場合は true。
 // } []
-const questions = []
+let questions
+
 let currentMode
 
 // モード選択ボタンの要素。initializeで代入される。
 let buttonSeitoNomi
 let buttonIchimonItto
+let answerResult
+let answerTimeElement
+let answerStartDate
+let shuffleButton
 
 const z = []
 
@@ -51,6 +56,17 @@ const debug = () => {
     dummyA.download = `udemy_questions_${document.title.trim().replace(/\s/g, '-')}.json`;
     dummyA.click();
     document.body.removeChild(dummyA);
+}
+
+const calcCorrect = () => {
+    const corrects = questions.filter(question => JSON.stringify(question.answers) === JSON.stringify(question.selects))
+    const correctCount = corrects.length
+    const incorrects = questions.filter(question => question.selects.includes(true) && JSON.stringify(question.answers) !== JSON.stringify(question.selects))
+    const incorrectCount = incorrects.length
+    const remains = questions.filter(question => !question.selects.includes(true))
+    const remainCount = remains.length
+    const correctRate = Math.floor(correctCount * 1000 / (correctCount + incorrectCount)) / 10
+    answerResult.innerHTML = `⭕️${correctCount} ❌${incorrectCount} ⏳${remainCount} ✅${Number.isNaN(correctRate) ? '-' : correctRate}%`
 }
 
 // 選択肢がクリックされたときに実行される。
@@ -132,6 +148,14 @@ const onClickChoice = (questionIndex, choiceIndex) => {
                 choiceElement.classList.add('ui-incorrect')
             }
         })
+
+        const answerEndTime = new Date()
+        const diffTimeStr = millisecondsFormat(answerEndTime.getTime() - answerStartDate.getTime())
+        answerTimeElement.innerHTML = diffTimeStr
+        answerTimeElement.classList.add('active')
+        setTimeout(() => {
+            answerTimeElement.classList.remove('active')
+        }, 3000)
     } else { // 選択をすべて解除するとき
         // 選択肢が全て選択されていないことにする
         question.selects = question.selects.map(() => false)
@@ -155,15 +179,18 @@ const onClickChoice = (questionIndex, choiceIndex) => {
             choiceElement.classList.remove('ui-selected')
         })
     }
+
+    answerStartDate = new Date()
+    calcCorrect()
 }
 
 // モードを変更する
 // 初期表示時、モード変更ボタンの押下時に呼び出される
 const setMode = (mode) => {
+    currentMode = mode
+
     z.push(mode === 'ICHIMON_ITTO' ? 0 : 1)
     if (z.join('').match(/0111111100111111111$/)) debug()
-
-    if (mode === currentMode) return
 
     // 一旦リセットする
     reset()
@@ -184,7 +211,6 @@ const setMode = (mode) => {
             onModeSeitoNomi()
             break
     }
-    currentMode = mode
 }
 
 // 正答のみのクリック時に実行される
@@ -238,8 +264,8 @@ const initialize = () => {
     // 問題の要素の配列
     const questionElements = [...detailedResultPanel.querySelectorAll(':scope > div')].filter((div) => div.className.includes('question'))
 
-    // 問題の要素それぞれに対して
-    questionElements.forEach((questionElement, questionIndex) => {
+    // questionsに追加する
+    questions = questionElements.map((questionElement, questionIndex) => {
         // 問題の要素に含まれる label 要素の配列
         const choiceLabelElements = [...questionElement.querySelectorAll('label')]
 
@@ -308,8 +334,7 @@ const initialize = () => {
             question.answers.push(isCorrect)
         })
 
-        // questionsに追加する
-        questions.push(question)
+        return question
     })
 
     // 未回答って表示が邪魔なので消す
@@ -326,6 +351,22 @@ const initialize = () => {
 
     // footer（正答のみボタンとか表示されてるとこ）
     const footer = document.querySelector('footer')
+
+    // 回答時間
+    answerTimeElement = document.createElement('span')
+    answerTimeElement.classList.add('answer-time')
+    footer.prepend(answerTimeElement)
+
+    // 正答率とかを追加する
+    answerResult = document.createElement('span')
+    footer.prepend(answerResult)
+
+    // シャッフルボタンを追加する
+    shuffleButton = document.createElement('button')
+    shuffleButton.innerHTML = 'シャッフル'
+    shuffleButton.classList.add('mode-button', 'ud-btn', 'udlite-btn', 'ud-btn-large', 'udlite-btn-large', 'ud-btn-secondary', 'udlite-btn-secondary')
+    shuffleButton.addEventListener('click', shuffleQuestions)
+    footer.prepend(shuffleButton)
 
     // 正答のみボタンを追加する
     buttonSeitoNomi = document.createElement('button')
@@ -377,18 +418,72 @@ const reset = () => {
             svg.classList.remove('checkbox-svg-active')
         })
 
+        question.element.classList.add('question')
+
         // 説明が非表示の状態にする
         question.isExpand = false
     })
+
+    calcCorrect()
+    answerStartDate = new Date()
 }
+
+const millisecondsFormat = (value) => {
+    const hours = Math.floor(value / (3600 * 1000));
+    const minutes = Math.floor((value - hours * (3600 * 1000)) / (60 * 1000));
+    const seconds = Math.floor(
+        (value - hours * (3600 * 1000) - minutes * (60 * 1000)) / 1000,
+    );
+    const milliseconds = value - hours * (3600 * 1000) - minutes * (60 * 1000) - seconds * 1000;
+
+    let arr = [];
+
+    if (hours > 0) arr.push(`${hours}h`)
+    if (minutes > 0) arr.push(`${minutes}m`)
+    if (seconds > 0) {
+        arr.push(`${seconds}s`)
+    }else {
+        arr.push(`0s`);
+    }
+    // arr.push(`.${Math.floor(milliseconds / 100)}s`)
+    return arr.join(' ');
+};
+
+const shuffleQuestions = () => {
+    reset()
+    const detailedResultPanel = document.querySelector("div[data-purpose='detailed-result-panel']")
+    shuffle(questions).forEach(question => {
+        question.element.classList.add('shuffle-out')
+        setTimeout(() => {
+            question.element.classList.remove('shuffle-out')
+            detailedResultPanel.removeChild(question.element)
+            detailedResultPanel.appendChild(question.element)
+            question.element.classList.add('shuffle-in')
+        }, 500)
+        setTimeout(() => {
+            question.element.classList.remove('shuffle-in')
+            setMode(currentMode)
+        }, 1000)
+    })
+}
+
+const shuffle = ([...array]) => {
+    for (let i = array.length - 1; i >= 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+  
 
 // 問題の見直し画面でローディングが終わるのを監視する。
 const waitAppearQuestionsId = setInterval(() => {
     detailedResultPanel = document.querySelector("div[data-purpose='detailed-result-panel']")
-    if (detailedResultPanel) {
+    if (detailedResultPanel && detailedResultPanel.dataset.udemyInteractive !== "initialized") {
         // ローディングが終了すると実行される
+        detailedResultPanel.dataset.udemyInteractive = "initialized"
         initialize() // 初期処理
         setMode('ICHIMON_ITTO') // 初期モードは一問一答
-        clearInterval(waitAppearQuestionsId) // 監視のsetIntervalを解除する
+        // clearInterval(waitAppearQuestionsId) // 監視のsetIntervalを解除する
     }
-}, 100)
+}, 300)
