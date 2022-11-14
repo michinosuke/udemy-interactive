@@ -131,6 +131,7 @@ const onClickChoice = (questionIndex, choiceIndex) => {
 
     // 説明を表示したなら
     if (question.isExpand) {
+        sortChoice(questionIndex)
         // 説明の要素を表示する
         explanationElement.classList.remove('display-none')
         explanationElement.classList.add('display-active')
@@ -155,7 +156,7 @@ const onClickChoice = (questionIndex, choiceIndex) => {
         answerTimeElement.classList.add('active')
         setTimeout(() => {
             answerTimeElement.classList.remove('active')
-        }, 3000)
+        }, 10000)
     } else { // 選択をすべて解除するとき
         // 選択肢が全て選択されていないことにする
         question.selects = question.selects.map(() => false)
@@ -222,7 +223,7 @@ const onModeSeitoNomi = () => {
         // 正答以外の選択肢を非表示にする
         question.choiceLiElements.forEach((choiceElement, choiceIndex) => {
             if (!question.answers[choiceIndex]) {
-                choiceElement.classList.add('display-none')
+                choiceElement.classList.add('display-none', 'margin-padding-0')
             }
         })
 
@@ -266,11 +267,14 @@ const initialize = () => {
 
     // questionsに追加する
     questions = questionElements.map((questionElement, questionIndex) => {
+        questionElement.classList.add('question')
+        
         // 問題の要素に含まれる label 要素の配列
         const choiceLabelElements = [...questionElement.querySelectorAll('label')]
 
         // 問題の要素に含まれる li 要素の配列
         const choiceLiElements = [...questionElement.querySelectorAll('li')]
+        choiceLiElements.forEach(li => li.classList.add('choice'))
 
         // 問題の要素の含まれる div 要素のうち、クラス名に explanation を含むものの配列
         const explanation = [...questionElement.querySelectorAll('div')].find((div) => div.className.includes('explanation'))
@@ -365,7 +369,18 @@ const initialize = () => {
     shuffleButton = document.createElement('button')
     shuffleButton.innerHTML = 'シャッフル'
     shuffleButton.classList.add('mode-button', 'ud-btn', 'udlite-btn', 'ud-btn-large', 'udlite-btn-large', 'ud-btn-secondary', 'udlite-btn-secondary')
-    shuffleButton.addEventListener('click', shuffleQuestions)
+    shuffleButton.addEventListener('click', () => {
+        shuffleButton.classList.add('selected')
+        shuffleQuestions()
+            .then(() => setMode(currentMode))
+            .then(() => {
+                const interval = setInterval(() => shuffleChoices(), 100)
+                setTimeout(() => {
+                    clearInterval(interval)
+                    shuffleButton.classList.remove('selected')
+                }, 1000)
+            })
+    })
     footer.prepend(shuffleButton)
 
     // 正答のみボタンを追加する
@@ -403,7 +418,7 @@ const reset = () => {
 
         // 選択肢に付与された display-none クラスを削除する
         question.choiceLiElements.forEach((choiceLiElement) => {
-            choiceLiElement.classList.remove('display-none')
+            choiceLiElement.classList.remove('display-none', 'margin-padding-0')
         })
 
         // selects を全て false にして、選択肢がクリックされていない状態にする
@@ -418,11 +433,16 @@ const reset = () => {
             svg.classList.remove('checkbox-svg-active')
         })
 
-        question.element.classList.add('question')
+        // question.element.classList.add('question')
 
         // 説明が非表示の状態にする
         question.isExpand = false
     })
+
+    // const interval = setInterval(() => shuffleChoices(), 80)
+    // setTimeout(() => {
+    //     clearInterval(interval)
+    // }, 700)
 
     calcCorrect()
     answerStartDate = new Date()
@@ -449,22 +469,40 @@ const millisecondsFormat = (value) => {
     return arr.join(' ');
 };
 
-const shuffleQuestions = () => {
-    reset()
-    const detailedResultPanel = document.querySelector("div[data-purpose='detailed-result-panel']")
-    shuffle(questions).forEach(question => {
-        question.element.classList.add('shuffle-out')
-        setTimeout(() => {
-            question.element.classList.remove('shuffle-out')
-            detailedResultPanel.removeChild(question.element)
-            detailedResultPanel.appendChild(question.element)
-            question.element.classList.add('shuffle-in')
-        }, 500)
-        setTimeout(() => {
-            question.element.classList.remove('shuffle-in')
-            setMode(currentMode)
-        }, 1000)
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+const sortChoice = async (questionIndex) => {
+    const question = questions[questionIndex]
+    const ul = question.element.querySelector('ul')
+    question.choiceLiElements.forEach(li => {
+        ul.removeChild(li)
+        ul.appendChild(li)
     })
+}
+
+const shuffleChoices = async () => {
+    questions.forEach(question => {
+        const ul = question.element.querySelector('ul')
+        shuffle(question.choiceLiElements).forEach(li => {
+            ul.removeChild(li)
+            ul.appendChild(li)
+        })
+    })
+}
+
+const shuffleQuestions = async () => {
+    const detailedResultPanel = document.querySelector("div[data-purpose='detailed-result-panel']")
+    const promises = shuffle(questions).map(async question => {
+        question.element.classList.add('shuffle-out')
+        await sleep(250)
+        question.element.classList.remove('shuffle-out')
+        detailedResultPanel.removeChild(question.element)
+        detailedResultPanel.appendChild(question.element)
+        question.element.classList.add('shuffle-in')
+        await sleep(50)
+        question.element.classList.remove('shuffle-in')
+    })
+    await Promise.all(promises)
 }
 
 const shuffle = ([...array]) => {

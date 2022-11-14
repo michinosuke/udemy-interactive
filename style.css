@@ -9,6 +9,10 @@
     opacity: 1;
     transition: max-height 3s ease, opacity .5s ease;
 }
+.margin-padding-0 {
+    margin: 0 !important;
+    padding: 0 !important;
+}
 
 .ui-correct {
     background-color: #c5deff;
@@ -27,6 +31,13 @@
     color: #777;
     font-size: 12px;
     content: '(不正解)'
+}
+.choice .ud-heading-md.udlite-heading-md {
+    user-select: text;
+    z-index: 100;
+}
+.choice:hover {
+    background-color: #fafafa;
 }
 
 .background-none {
@@ -48,10 +59,10 @@
     transition: all .2s ease;
 }
 
-.ui-selected {
+/* .ui-selected {
     border: solid 2px #333;
     transition: border .1s ease;
-}
+} */
 
 .mode-button.selected {
     background-color: black;
@@ -59,6 +70,9 @@
     font-weight: bold;
     /* pointer-events: none; */
     transition: all .3s ease;
+}
+.mode-button.selected:hover {
+    background-color: black;
 }
 
 .udlite-toggle-input-disabled {
@@ -89,7 +103,7 @@
 
 .answer-time {
     opacity: 0;
-    transition: opacity ease 2s;
+    transition: opacity ease 5s;
 }
 .answer-time.active {
     opacity: 1;
@@ -99,15 +113,15 @@
 .question {
     transform: translateY(0px);
     opacity: 1;
-    transition: all .5s ease-out;
+    transition: all .25s ease-in;
 }
 .question.shuffle-out {
     transform: translateY(80vh);
     opacity: 0;
-    transition: all .5s ease-in;
+    transition: all .25s ease-in;
 }
 .question.shuffle-in {
     transform: translateY(80vh);
     opacity: 0;
-    transition: all .5s ease-in;
+    transition: all .25s ease-out;
 }
