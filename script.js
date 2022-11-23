@@ -268,7 +268,7 @@ const element2text = (element) => {
 // 初回のみ実行するフォーマット
 const initialize = () => {
     dialog = document.createElement('div')
-    dialog.classList.add('dialog', 'display-none')
+    dialog.classList.add('dialog', 'hidden')
     document.body.appendChild(dialog)
 
     // ローディングしたとこの要素。問題が全部含まれてる。
@@ -410,7 +410,7 @@ const initialize = () => {
     // シャッフルボタンを追加する
     shuffleButton = document.createElement('button')
     shuffleButton.innerHTML = 'シャッフル'
-    shuffleButton.classList.add('mode-button', 'ud-btn', 'udlite-btn', 'ud-btn-large', 'udlite-btn-large', 'ud-btn-secondary', 'udlite-btn-secondary')
+    shuffleButton.classList.add('mode-button', 'ud-btn', 'udlite-btn', 'ud-btn-small', 'ud-btn-secondary', 'udlite-btn-secondary')
     shuffleButton.addEventListener('click', () => {
         shuffleButton.classList.add('selected')
         shuffleQuestions()
@@ -428,14 +428,14 @@ const initialize = () => {
     // 正答のみボタンを追加する
     buttonSeitoNomi = document.createElement('button')
     buttonSeitoNomi.innerHTML = '正答のみ'
-    buttonSeitoNomi.classList.add('mode-button', 'ud-btn', 'udlite-btn', 'ud-btn-large', 'udlite-btn-large', 'ud-btn-secondary', 'udlite-btn-secondary')
+    buttonSeitoNomi.classList.add('mode-button', 'ud-btn', 'udlite-btn', 'ud-btn-small', 'ud-btn-secondary', 'udlite-btn-secondary')
     buttonSeitoNomi.addEventListener('click', () => setMode('SEITO_NOMI'))
     footer.prepend(buttonSeitoNomi)
 
     // 一問一答ボタンを追加する
     buttonIchimonItto = document.createElement('button')
     buttonIchimonItto.innerHTML = '一問一答'
-    buttonIchimonItto.classList.add('mode-button', 'ud-btn', 'udlite-btn', 'ud-btn-large', 'udlite-btn-large', 'ud-btn-secondary', 'udlite-btn-secondary')
+    buttonIchimonItto.classList.add('mode-button', 'ud-btn', 'udlite-btn', 'ud-btn-small', 'ud-btn-secondary', 'udlite-btn-secondary')
     buttonIchimonItto.addEventListener('click', () => setMode('ICHIMON_ITTO'))
     footer.prepend(buttonIchimonItto)
 
@@ -491,14 +491,12 @@ const assertTrue = (e, errorCode) => {
 }
 
 const closeDialog = () => {
-    dialog.classList.add('display-none')
-    dialog.classList.remove('display-active')
+    dialog.classList.add('hidden')
     dialog.innerHTML = ''
 }
 
 const openDialog = (message) => {
-    dialog.classList.remove('display-none')
-    dialog.classList.add('display-active')
+    dialog.classList.remove('hidden')
     const text = document.createElement('p')
     text.innerHTML = message
     const closeButton = document.createElement('button')
@@ -631,7 +629,6 @@ const shuffle = ([...array]) => {
 // 問題の見直し画面でローディングが終わるのを監視する。
 const waitAppearQuestionsId = setInterval(() => {
     detailedResultPanel = document.querySelector("div[data-purpose='detailed-result-panel']")
-    assertTrue(detailedResultPanel, 150)
     if (detailedResultPanel && detailedResultPanel.dataset.udemyInteractive !== "initialized") {
         // ローディングが終了すると実行される
         detailedResultPanel.dataset.udemyInteractive = "initialized"
