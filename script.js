@@ -386,14 +386,17 @@ const initialize = () => {
 
     // n回目の試み → Udemy Interactive
     const title = [...detailedResultPanel.querySelectorAll(':scope div')].find((div) => div.innerHTML.match(/^\d+回目の試み$/))
+    assertTrue(title, 110)
     title.innerHTML = 'Udemy Interactive'
 
     // (正解) の非表示
     const texts = [...detailedResultPanel.querySelectorAll(':scope div')].filter(div => ['(正解)', '(不正解)'].includes(div.innerHTML))
+    assertTrue(texts.length, 111)
     texts.forEach(text => text.classList.add('display-none'))
 
     // footer（正答のみボタンとか表示されてるとこ）
     const footer = document.querySelector('footer')
+    assertTrue(footer, 112)
 
     // 回答時間
     answerTimeElement = document.createElement('span')
@@ -438,17 +441,22 @@ const initialize = () => {
 
     // 全画面表示するためのCSS
     scaledHeightLimiters = [...document.querySelectorAll('div')].filter((div) => div.className.includes('curriculum-item-view--scaled-height-limiter--'))
+    assertTrue(scaledHeightLimiters.length === 2, 113)
 
     footerContainer = [...document.querySelectorAll('div')].find((div) => div.className.includes('ud-component--footer--footer-container'))
+    assertTrue(footerContainer, 114)
     footerContainer.classList.add('footer-container')
 
     dashboard = [...document.querySelectorAll('div')].find((div) => div.className.includes('app--row--') && div.className.includes('app--dashboard--'))
+    assertTrue(dashboard, 115)
     dashboard.classList.add('dashboard')
 
     aspectRatioContainer = [...document.querySelectorAll('div')].find((div) => div.className.includes('curriculum-item-view--aspect-ratio-container--'))
+    assertTrue(aspectRatioContainer, 116)
     aspectRatioContainer.classList.add('aspect-ratio-container')
 
     theatreButton = document.querySelector('button[data-purpose="theatre-mode-toggle-button"]')
+    assertTrue(theatreButton, 117)
     theatreButton.addEventListener('click', () => {
         setTimeout(() => toggleTheatreCss(), 100)
     })
@@ -577,6 +585,7 @@ const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 const sortChoice = async (questionIndex) => {
     const question = questions[questionIndex]
     const ul = question.element.querySelector('ul')
+    assertTrue(ul, 130)
     question.choiceLiElements.forEach(li => {
         ul.removeChild(li)
         ul.appendChild(li)
@@ -586,6 +595,7 @@ const sortChoice = async (questionIndex) => {
 const shuffleChoices = async () => {
     questions.forEach(question => {
         const ul = question.element.querySelector('ul')
+        assertTrue(ul, 131)
         shuffle(question.choiceLiElements).forEach(li => {
             ul.removeChild(li)
             ul.appendChild(li)
@@ -595,6 +605,7 @@ const shuffleChoices = async () => {
 
 const shuffleQuestions = async () => {
     const detailedResultPanel = document.querySelector("div[data-purpose='detailed-result-panel']")
+    assertTrue(detailedResultPanel, 140)
     const promises = shuffle(questions).map(async question => {
         question.element.classList.add('shuffle-out')
         await sleep(250)
@@ -620,6 +631,7 @@ const shuffle = ([...array]) => {
 // 問題の見直し画面でローディングが終わるのを監視する。
 const waitAppearQuestionsId = setInterval(() => {
     detailedResultPanel = document.querySelector("div[data-purpose='detailed-result-panel']")
+    assertTrue(detailedResultPanel, 150)
     if (detailedResultPanel && detailedResultPanel.dataset.udemyInteractive !== "initialized") {
         // ローディングが終了すると実行される
         detailedResultPanel.dataset.udemyInteractive = "initialized"
