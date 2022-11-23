@@ -87,18 +87,20 @@
     height: 100%;
 }
 
-.curriculum-item-view--scaled-height-limiter--1j3Pp.curriculum-item-view--no-sidebar--L4DBG {
+.scaled-height-limiter.hidden {
     max-height: none !important;
     position: static !important;
 }
-
-.ud-app-loader.ud-component--footer--footer-container.ud-footer-container.ud-app-loaded {
+.footer-container.hidden {
     max-height: 0 !important;
     overflow: hidden !important;
 }
-.app--row--1ydzX.app--dashboard--dXVM6 {
+.dashboard.hidden {
     max-height: 0 !important;
     overflow: hidden !important;
+}
+.aspect-ratio-container.hidden {
+    padding-top: 0 !important;
 }
 
 .answer-time {
@@ -124,4 +126,48 @@
     transform: translateY(80vh);
     opacity: 0;
     transition: all .25s ease-out;
+}
+/* .question.hover {
+    transform: scale(1.05);
+} */
+@keyframes hover {
+    0% { opacity: 1 }
+    50% { opacity: 0.5 }
+    100% { opacity: 1 }
+}
+
+/* body {
+    position: relative;
+    width: 100%;
+    height: 100%;
+} */
+
+.dialog {
+    position: absolute;
+    background-color: white;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: inline-block;
+    max-width: 500px;
+    max-height: 300px;
+    height: auto;
+    padding: 10px 20px;
+    margin: 100px auto 0;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    border-radius: 3px;
+}
+.dialog button {
+    cursor: pointer;
+}
+.dialog .close-button {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    text-align: center;
+}
+.dialog p {
+    white-space: pre-wrap;
+    margin: 10px 0;
 }

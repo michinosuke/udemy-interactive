@@ -26,6 +26,14 @@ let answerResult
 let answerTimeElement
 let answerStartDate
 let shuffleButton
+let dialog
+
+// シアターモードCSS
+let scaledHeightLimiters
+let footerContainer
+let dashboard
+let theatreButton
+let aspectRatioContainer
 
 const z = []
 
@@ -154,9 +162,10 @@ const onClickChoice = (questionIndex, choiceIndex) => {
         const diffTimeStr = millisecondsFormat(answerEndTime.getTime() - answerStartDate.getTime())
         answerTimeElement.innerHTML = diffTimeStr
         answerTimeElement.classList.add('active')
-        setTimeout(() => {
-            answerTimeElement.classList.remove('active')
-        }, 10000)
+        answerStartDate = new Date()
+        // setTimeout(() => {
+        //     answerTimeElement.classList.remove('active')
+        // }, 10000)
     } else { // 選択をすべて解除するとき
         // 選択肢が全て選択されていないことにする
         question.selects = question.selects.map(() => false)
@@ -181,7 +190,6 @@ const onClickChoice = (questionIndex, choiceIndex) => {
         })
     }
 
-    answerStartDate = new Date()
     calcCorrect()
 }
 
@@ -259,32 +267,61 @@ const element2text = (element) => {
 
 // 初回のみ実行するフォーマット
 const initialize = () => {
+    dialog = document.createElement('div')
+    dialog.classList.add('dialog', 'display-none')
+    document.body.appendChild(dialog)
+
     // ローディングしたとこの要素。問題が全部含まれてる。
     const detailedResultPanel = document.querySelector("div[data-purpose='detailed-result-panel']")
+    assertTrue(detailedResultPanel, 101)
+
+    // const detailedResultPanel = (() => {
+    //     try {
+    //         const tmp = document.querySelector("div[data-purpose='detailed-result-pane']")
+    //     } catch {
+    //         assertTrue(detailedResultPanel, 101)
+    //     }
+    // })
+    
 
     // 問題の要素の配列
     const questionElements = [...detailedResultPanel.querySelectorAll(':scope > div')].filter((div) => div.className.includes('question'))
+    assertTrue(questionElements.length, 102)
 
     // questionsに追加する
     questions = questionElements.map((questionElement, questionIndex) => {
         questionElement.classList.add('question')
+
+        questionElement.addEventListener('mouseenter', () => {
+            questionElement.classList.add('hover')
+            answerTimeElement.classList.remove('active')
+            answerStartDate = new Date()
+        })
+        questionElement.addEventListener('mouseleave', () => {
+            questionElement.classList.remove('hover')
+        })
         
         // 問題の要素に含まれる label 要素の配列
         const choiceLabelElements = [...questionElement.querySelectorAll('label')]
+        assertTrue(choiceLabelElements.length, 103)
 
         // 問題の要素に含まれる li 要素の配列
         const choiceLiElements = [...questionElement.querySelectorAll('li')]
+        assertTrue(choiceLiElements.length, 104)
         choiceLiElements.forEach(li => li.classList.add('choice'))
 
         // 問題の要素の含まれる div 要素のうち、クラス名に explanation を含むものの配列
         const explanation = [...questionElement.querySelectorAll('div')].find((div) => div.className.includes('explanation'))
+        assertTrue(explanation, 105)
 
         // 質問文
         const q = questionElement.querySelector('#question-prompt')
+        assertTrue(q, 106)
         const questionHtml = q.innerHTML
         const questionArray = element2text(q)
         // 説明文
         const e = explanation.querySelector(':scope > div')
+        assertTrue(e, 107)
         const explanationHtml = e.innerHTML
         const explanationArray = element2text(e)
         // 選択肢
@@ -292,9 +329,11 @@ const initialize = () => {
 
         // ラジオボタン
         const radioElements = [...questionElement.querySelectorAll('input[type="radio"]')]
+        assertTrue(radioElements, 108)
 
         // チェックボックス
         const checkboxSvgElements = [...questionElement.querySelectorAll('svg')]
+        assertTrue(checkboxSvgElements, 109)
 
         // questionsに追加するオブジェクト（各プロパティの意味はこのファイル上部を参照）
         const question = {
@@ -396,6 +435,70 @@ const initialize = () => {
     buttonIchimonItto.classList.add('mode-button', 'ud-btn', 'udlite-btn', 'ud-btn-large', 'udlite-btn-large', 'ud-btn-secondary', 'udlite-btn-secondary')
     buttonIchimonItto.addEventListener('click', () => setMode('ICHIMON_ITTO'))
     footer.prepend(buttonIchimonItto)
+
+    // 全画面表示するためのCSS
+    scaledHeightLimiters = [...document.querySelectorAll('div')].filter((div) => div.className.includes('curriculum-item-view--scaled-height-limiter--'))
+
+    footerContainer = [...document.querySelectorAll('div')].find((div) => div.className.includes('ud-component--footer--footer-container'))
+    footerContainer.classList.add('footer-container')
+
+    dashboard = [...document.querySelectorAll('div')].find((div) => div.className.includes('app--row--') && div.className.includes('app--dashboard--'))
+    dashboard.classList.add('dashboard')
+
+    aspectRatioContainer = [...document.querySelectorAll('div')].find((div) => div.className.includes('curriculum-item-view--aspect-ratio-container--'))
+    aspectRatioContainer.classList.add('aspect-ratio-container')
+
+    theatreButton = document.querySelector('button[data-purpose="theatre-mode-toggle-button"]')
+    theatreButton.addEventListener('click', () => {
+        setTimeout(() => toggleTheatreCss(), 100)
+    })
+    toggleTheatreCss()
+}
+
+const toggleTheatreCss = () => {
+    scaledHeightLimiters.forEach(div => div.classList.add('scaled-height-limiter'))
+    const isExpended = scaledHeightLimiters[0].className.includes('no-sidebar')
+    if (isExpended) {
+        scaledHeightLimiters.forEach(div => div.classList.add('hidden'))
+        footerContainer.classList.add('hidden')
+        dashboard.classList.add('hidden')
+        aspectRatioContainer.classList.add('hidden')
+    } else {
+        scaledHeightLimiters.forEach(div => div.classList.remove('hidden'))
+        footerContainer.classList.remove('hidden')
+        dashboard.classList.remove('hidden')
+        aspectRatioContainer.classList.remove('hidden')
+    }
+}
+
+const assertTrue = (e, errorCode) => {
+    if (!e) {
+        openDialog(`Udemyの仕様変更により、拡張機能が正常に実行できません。
+<a target="_blank" href="https://twitter.com/messages/compose?recipient_id=977451452099514369&text=Udemy Interactiveでエラーコード ${errorCode} が発生しました！">@Michin0suke</a>までご連絡をお願いいたします。
+
+<a target="_blank" href="https://twitter.com/messages/compose?recipient_id=977451452099514369&text=Udemy Interactiveでエラーコード ${errorCode} が発生しました！"><button>エラーを報告する</button></a>
+
+エラーコード: ${errorCode}`)
+    }
+}
+
+const closeDialog = () => {
+    dialog.classList.add('display-none')
+    dialog.classList.remove('display-active')
+    dialog.innerHTML = ''
+}
+
+const openDialog = (message) => {
+    dialog.classList.remove('display-none')
+    dialog.classList.add('display-active')
+    const text = document.createElement('p')
+    text.innerHTML = message
+    const closeButton = document.createElement('button')
+    closeButton.innerHTML = 'x'
+    closeButton.classList.add('close-button')
+    closeButton.addEventListener('click', closeDialog)
+    dialog.appendChild(closeButton)
+    dialog.appendChild(text)
 }
 
 // 表示をリセットする関数
