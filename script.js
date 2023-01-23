@@ -320,7 +320,7 @@ const initialize = () => {
         choiceLiElements.forEach(li => li.classList.add('choice'))
 
         // 問題の要素の含まれる div 要素のうち、クラス名に explanation を含むものの配列
-        const explanation = [...questionElement.querySelectorAll('div')].find((div) => div.className.includes('explanation'))
+        const explanation = [...questionElement.querySelectorAll('div')].find((div) => div.className.includes('explanation')) ?? document.createElement('div')
         assertTrue(explanation, 105)
 
         // 質問文
@@ -329,7 +329,7 @@ const initialize = () => {
         const questionHtml = q.innerHTML
         const questionArray = element2text(q)
         // 説明文
-        const e = explanation.querySelector(':scope > div')
+        const e = explanation.querySelector(':scope > div') ?? document.createElement('div')
         assertTrue(e, 107)
         const explanationHtml = e.innerHTML
         const explanationArray = element2text(e)
@@ -489,15 +489,15 @@ const toggleTheatreCss = () => {
 }
 
 const assertTrue = (e, errorCode) => {
-    if (!e) {
-        errorCodes.add(errorCode)
-        openDialog(`Udemyの仕様変更により、拡張機能が正常に実行できません。
-<a target="_blank" href="https://twitter.com/messages/compose?recipient_id=977451452099514369&text=Udemy Interactiveでエラーコード ${[...errorCodes].join(', ')} が発生しました！">@Michin0suke</a>までご連絡をお願いいたします。
+//     if (!e) {
+//         errorCodes.add(errorCode)
+//         openDialog(`Udemyの仕様変更により、拡張機能が正常に実行できません。
+// <a target="_blank" href="https://twitter.com/messages/compose?recipient_id=977451452099514369&text=Udemy Interactiveでエラーコード ${[...errorCodes].join(', ')} が発生しました！">@Michin0suke</a>までご連絡をお願いいたします。
 
-<a target="_blank" href="https://twitter.com/messages/compose?recipient_id=977451452099514369&text=Udemy Interactiveでエラーコード ${[...errorCodes].join(', ')} が発生しました！"><button>エラーを報告する</button></a>
+// <a target="_blank" href="https://twitter.com/messages/compose?recipient_id=977451452099514369&text=Udemy Interactiveでエラーコード ${[...errorCodes].join(', ')} が発生しました！"><button>エラーを報告する</button></a>
 
-エラーコード: ${[...errorCodes].join(', ')}`)
-    }
+// エラーコード: ${[...errorCodes].join(', ')}`)
+//     }
 }
 
 const closeDialog = () => {
