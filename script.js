@@ -35,6 +35,8 @@ let dashboard
 let theatreButton
 let aspectRatioContainer
 
+const errorCodes = new Set()
+
 const z = []
 
 const debug = () => {
@@ -268,7 +270,14 @@ const element2text = (element) => {
 // 初回のみ実行するフォーマット
 const initialize = () => {
     dialog = document.createElement('div')
+    const text = document.createElement('p')
+    const closeButton = document.createElement('button')
+    closeButton.innerHTML = 'x 閉じる'
+    closeButton.classList.add('close-button')
+    closeButton.addEventListener('click', closeDialog)
     dialog.classList.add('dialog', 'hidden')
+    dialog.appendChild(text)
+    dialog.appendChild(closeButton)
     document.body.appendChild(dialog)
 
     // ローディングしたとこの要素。問題が全部含まれてる。
@@ -481,12 +490,13 @@ const toggleTheatreCss = () => {
 
 const assertTrue = (e, errorCode) => {
     if (!e) {
+        errorCodes.add(errorCode)
         openDialog(`Udemyの仕様変更により、拡張機能が正常に実行できません。
-<a target="_blank" href="https://twitter.com/messages/compose?recipient_id=977451452099514369&text=Udemy Interactiveでエラーコード ${errorCode} が発生しました！">@Michin0suke</a>までご連絡をお願いいたします。
+<a target="_blank" href="https://twitter.com/messages/compose?recipient_id=977451452099514369&text=Udemy Interactiveでエラーコード ${[...errorCodes].join(', ')} が発生しました！">@Michin0suke</a>までご連絡をお願いいたします。
 
-<a target="_blank" href="https://twitter.com/messages/compose?recipient_id=977451452099514369&text=Udemy Interactiveでエラーコード ${errorCode} が発生しました！"><button>エラーを報告する</button></a>
+<a target="_blank" href="https://twitter.com/messages/compose?recipient_id=977451452099514369&text=Udemy Interactiveでエラーコード ${[...errorCodes].join(', ')} が発生しました！"><button>エラーを報告する</button></a>
 
-エラーコード: ${errorCode}`)
+エラーコード: ${[...errorCodes].join(', ')}`)
     }
 }
 
@@ -497,14 +507,8 @@ const closeDialog = () => {
 
 const openDialog = (message) => {
     dialog.classList.remove('hidden')
-    const text = document.createElement('p')
+    const text = dialog.querySelector('p')
     text.innerHTML = message
-    const closeButton = document.createElement('button')
-    closeButton.innerHTML = 'x'
-    closeButton.classList.add('close-button')
-    closeButton.addEventListener('click', closeDialog)
-    dialog.appendChild(closeButton)
-    dialog.appendChild(text)
 }
 
 // 表示をリセットする関数

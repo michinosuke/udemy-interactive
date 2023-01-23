@@ -166,9 +166,9 @@
 }
 .dialog .close-button {
     display: inline-block;
-    width: 20px;
+    /* width: 20px;
     height: 20px;
-    text-align: center;
+    text-align: center; */
 }
 .dialog p {
     white-space: pre-wrap;
