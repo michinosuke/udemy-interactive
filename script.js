@@ -394,12 +394,13 @@ const initialize = () => {
     statusButtons.forEach(statusButton => statusButton.classList.add('display-none'))
 
     // n回目の試み → Udemy Interactive
-    const title = [...detailedResultPanel.querySelectorAll(':scope div')].find((div) => div.innerHTML.match(/^\d+回目の試み$/))
-    assertTrue(title, 110)
-    title.innerHTML = 'Udemy Interactive'
+    // const title = [...detailedResultPanel.querySelectorAll(':scope div')].find((div) => div.innerHTML.match(/^\d+回目の試み$/)) ?? document.createElement('div')
+    // const title = [...questionElement.querySelectorAll('div')].find((div) => div.className.find(name => name.match(/detailed-result-panel--chart/)))
+    // assertTrue(title, 110)
+    // title.innerHTML = 'Udemy Interactive'
 
     // (正解) の非表示
-    const texts = [...detailedResultPanel.querySelectorAll(':scope div')].filter(div => ['(正解)', '(不正解)'].includes(div.innerHTML))
+    const texts = [...detailedResultPanel.querySelectorAll(':scope div')].filter(div => ['(正解)', '(不正解)', '(Correct)', '(Incorrect)'].includes(div.innerHTML)) ?? [document.createElement('div')]
     assertTrue(texts.length, 111)
     texts.forEach(text => text.classList.add('display-none'))
 
