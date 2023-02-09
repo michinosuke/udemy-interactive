@@ -40,22 +40,18 @@ const errorCodes = new Set()
 const z = []
 
 const debug = () => {
-    const json = questions.map((question, i) => ({
-        question: {
-            html: question.questionHtml,
-            texts: question.question
+    const json = {
+        meta: {
+            title: document.title.trim()
         },
-        choices: question.choiceTexts.map((choiceText, choiceIndex) => ({
-            text: choiceText,
-            correct: question.answers[choiceIndex]
-        })),
-        explanation: {
-            html: question.explanationHtml,
-            texts: question.explanation
-        },
-        choice_count: question.choiceTexts.length,
-        correct_count: question.answers.filter(a => a).length
-    }))
+        questions: questions.map((question) => ({
+            question: question.question,
+            choices: question.choiceTexts,
+            explanation: question.explanation,
+            corrects: question.answers.reduce((pre, cur, i) => cur ? [...pre, i+1] : pre,[])
+        }))
+    }
+    
     const jsonStr = JSON.stringify(json, null, 4);
     const blob = new Blob([jsonStr], { type: 'application/json' });
 
