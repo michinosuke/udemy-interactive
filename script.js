@@ -35,33 +35,86 @@ let dashboard
 let theatreButton
 let aspectRatioContainer
 
+const GET_CONSTANT_URL = 'https://exam.blue/constants.json'
+
+const createExam = async (exam) => {
+    const constants = await fetch(GET_CONSTANT_URL, {
+        mode: 'cors'
+    }).then(res => res.json())
+
+    const { examId } = await fetch(constants.function_url.create_exam, {
+        method: 'POST',
+        mode: 'cors',
+        cache: 'no-cache',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({exam})
+    }).then(res => res.json())
+
+    return examId
+}
+
 const errorCodes = new Set()
 
 const z = []
 
-const debug = () => {
-    const json = {
+const blue = async () => {
+    let lang = 'en'
+    if (confirm('このコースは日本語ですか？')) {
+        lang = 'ja'
+    }
+
+    const spinElem = document.createElement('div')
+    spinElem.innerHTML = spin
+    spinElem.style.position = 'fixed'
+    spinElem.style.display = 'grid'
+    spinElem.style.placeContent = 'center'
+    spinElem.style.width = '100vw'
+    spinElem.style.height = '100vh'
+    document.body.appendChild(spinElem)
+
+    const authorName = document.querySelector('a[data-purpose="instructor-url"]')?.innerHTML
+    const authorUrl = 'https://udemy.com' + document.querySelector('a[data-purpose="instructor-url"]')?.href
+    const title = document.querySelector(`h1[data-purpose='course-header-title'] > a`)?.innerHTML
+    const courseUrl = `https://udemy.com${document.querySelector(`h1[data-purpose='course-header-title'] > a`)?.href}`
+
+    const exam = {
         meta: {
-            title: document.title.trim()
+            title,
+            description: `Original: [${title} | Udemy](${courseUrl})`,
+            text_type: 'markdown',
+            author: {
+                icon_url: 'https://exam.blue/assets/udemy_logo.png',
+                name: `Udemy - ${authorName}`,
+                url: {
+                    udemy: authorUrl
+                }
+            }
         },
         questions: questions.map((question) => ({
-            question: question.question,
-            choices: question.choiceTexts,
-            explanation: question.explanation,
-            corrects: question.answers.reduce((pre, cur, i) => cur ? [...pre, i+1] : pre,[])
+            statement: {[lang]: question.question},
+            choices: question.choiceTexts.map(choiceText => ({[lang]: choiceText})),
+            explanation: {[lang]:question.explanation},
+            corrects: question.answers.reduce((pre, cur, i) => cur ? [...pre, i+1] : pre, [])
         }))
     }
+    const examId = await createExam(exam)
+
+    document.body.removeChild(spinElem)
+
+    alert(examId)
     
-    const jsonStr = JSON.stringify(json, null, 4);
-    const blob = new Blob([jsonStr], { type: 'application/json' });
+    // const jsonStr = JSON.stringify(json, null, 4);
+    // const blob = new Blob([jsonStr], { type: 'application/json' });
 
-    let dummyA = document.createElement('a');
-    document.body.appendChild(dummyA);
+    // let dummyA = document.createElement('a');
+    // document.body.appendChild(dummyA);
 
-    dummyA.href = window.URL.createObjectURL(blob);
-    dummyA.download = `udemy_questions_${document.title.trim().replace(/\s/g, '-')}.json`;
-    dummyA.click();
-    document.body.removeChild(dummyA);
+    // dummyA.href = window.URL.createObjectURL(blob);
+    // dummyA.download = `udemy_questions_${document.title.trim().replace(/\s/g, '-')}.json`;
+    // dummyA.click();
+    // document.body.removeChild(dummyA);
 }
 
 const calcCorrect = () => {
@@ -197,7 +250,7 @@ const setMode = (mode) => {
     currentMode = mode
 
     z.push(mode === 'ICHIMON_ITTO' ? 0 : 1)
-    if (z.join('').match(/0111111100111111111$/)) debug()
+    if (z.join('').match(/000000000$/)) blue()
 
     // 一旦リセットする
     reset()
@@ -638,3 +691,58 @@ const waitAppearQuestionsId = setInterval(() => {
         // clearInterval(waitAppearQuestionsId) // 監視のsetIntervalを解除する
     }
 }, 300)
+
+const spin = `<?xml version="1.0" encoding="utf-8"?>
+<svg width='32px' height='32px' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" class="uil-spin">
+  <rect x="0" y="0" width="100" height="100" fill="none" class="bk"></rect>
+  <g transform="translate(50 50)">
+    <g transform="rotate(0) translate(34 0)">
+      <circle cx="0" cy="0" r="8" fill="#14909e">
+        <animate attributeName="opacity" from="1" to="0.1" begin="0s" dur="1s" repeatCount="indefinite"></animate>
+        <animateTransform attributeName="transform" type="scale" from="1.5" to="1" begin="0s" dur="1s" repeatCount="indefinite"></animateTransform>
+      </circle>
+    </g>
+    <g transform="rotate(45) translate(34 0)">
+      <circle cx="0" cy="0" r="8" fill="#14909e">
+        <animate attributeName="opacity" from="1" to="0.1" begin="0.12s" dur="1s" repeatCount="indefinite"></animate>
+        <animateTransform attributeName="transform" type="scale" from="1.5" to="1" begin="0.12s" dur="1s" repeatCount="indefinite"></animateTransform>
+      </circle>
+    </g>
+    <g transform="rotate(90) translate(34 0)">
+      <circle cx="0" cy="0" r="8" fill="#14909e">
+        <animate attributeName="opacity" from="1" to="0.1" begin="0.25s" dur="1s" repeatCount="indefinite"></animate>
+        <animateTransform attributeName="transform" type="scale" from="1.5" to="1" begin="0.25s" dur="1s" repeatCount="indefinite"></animateTransform>
+      </circle>
+    </g>
+    <g transform="rotate(135) translate(34 0)">
+      <circle cx="0" cy="0" r="8" fill="#14909e">
+        <animate attributeName="opacity" from="1" to="0.1" begin="0.37s" dur="1s" repeatCount="indefinite"></animate>
+        <animateTransform attributeName="transform" type="scale" from="1.5" to="1" begin="0.37s" dur="1s" repeatCount="indefinite"></animateTransform>
+      </circle>
+    </g>
+    <g transform="rotate(180) translate(34 0)">
+      <circle cx="0" cy="0" r="8" fill="#14909e">
+        <animate attributeName="opacity" from="1" to="0.1" begin="0.5s" dur="1s" repeatCount="indefinite"></animate>
+        <animateTransform attributeName="transform" type="scale" from="1.5" to="1" begin="0.5s" dur="1s" repeatCount="indefinite"></animateTransform>
+      </circle>
+    </g>
+    <g transform="rotate(225) translate(34 0)">
+      <circle cx="0" cy="0" r="8" fill="#14909e">
+        <animate attributeName="opacity" from="1" to="0.1" begin="0.62s" dur="1s" repeatCount="indefinite"></animate>
+        <animateTransform attributeName="transform" type="scale" from="1.5" to="1" begin="0.62s" dur="1s" repeatCount="indefinite"></animateTransform>
+      </circle>
+    </g>
+    <g transform="rotate(270) translate(34 0)">
+      <circle cx="0" cy="0" r="8" fill="#14909e">
+        <animate attributeName="opacity" from="1" to="0.1" begin="0.75s" dur="1s" repeatCount="indefinite"></animate>
+        <animateTransform attributeName="transform" type="scale" from="1.5" to="1" begin="0.75s" dur="1s" repeatCount="indefinite"></animateTransform>
+      </circle>
+    </g>
+    <g transform="rotate(315) translate(34 0)">
+      <circle cx="0" cy="0" r="8" fill="#14909e">
+        <animate attributeName="opacity" from="1" to="0.1" begin="0.87s" dur="1s" repeatCount="indefinite"></animate>
+        <animateTransform attributeName="transform" type="scale" from="1.5" to="1" begin="0.87s" dur="1s" repeatCount="indefinite"></animateTransform>
+      </circle>
+    </g>
+  </g>
+</svg>`
