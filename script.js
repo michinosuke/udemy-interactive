@@ -75,9 +75,9 @@ const blue = async () => {
     document.body.appendChild(spinElem)
 
     const authorName = document.querySelector('a[data-purpose="instructor-url"]')?.innerHTML
-    const authorUrl = 'https://udemy.com' + document.querySelector('a[data-purpose="instructor-url"]')?.href
+    const authorUrl = document.querySelector('a[data-purpose="instructor-url"]')?.href
     const title = document.querySelector(`h1[data-purpose='course-header-title'] > a`)?.innerHTML
-    const courseUrl = `https://udemy.com${document.querySelector(`h1[data-purpose='course-header-title'] > a`)?.href}`
+    const courseUrl = document.querySelector(`h1[data-purpose='course-header-title'] > a`)?.href
 
     const exam = {
         meta: {
