@@ -330,8 +330,8 @@ const initialize = () => {
     document.body.appendChild(dialog)
 
     // ローディングしたとこの要素。問題が全部含まれてる。
-    const detailedResultPanel = document.querySelector("div[data-purpose='detailed-result-panel']")
-    assertTrue(detailedResultPanel, 101)
+    const quizPageContent = document.querySelector('div.quiz-page-content')
+    assertTrue(quizPageContent, 101)
 
     // const detailedResultPanel = (() => {
     //     try {
@@ -341,9 +341,8 @@ const initialize = () => {
     //     }
     // })
     
-
     // 問題の要素の配列
-    const questionElements = [...detailedResultPanel.querySelectorAll(':scope > div')].filter((div) => div.className.includes('question'))
+    const questionElements = [...quizPageContent.querySelectorAll('div')].filter((div) => div.className.match(/result-pane--accordion-panel--/))
     assertTrue(questionElements.length, 102)
 
     // questionsに追加する
@@ -360,16 +359,16 @@ const initialize = () => {
         })
         
         // 問題の要素に含まれる label 要素の配列
-        const choiceLabelElements = [...questionElement.querySelectorAll('label')]
-        assertTrue(choiceLabelElements.length, 103)
+        // const choiceLabelElements = [...questionElement.querySelectorAll('label')]
+        // assertTrue(choiceLabelElements.length, 103)
 
         // 問題の要素に含まれる li 要素の配列
-        const choiceLiElements = [...questionElement.querySelectorAll('li')]
-        assertTrue(choiceLiElements.length, 104)
-        choiceLiElements.forEach(li => li.classList.add('choice'))
+        // const choiceLiElements = [...questionElement.querySelectorAll('li')]
+        // assertTrue(choiceLiElements.length, 104)
+        // choiceLiElements.forEach(li => li.classList.add('choice'))
 
         // 問題の要素の含まれる div 要素のうち、クラス名に explanation を含むものの配列
-        const explanation = [...questionElement.querySelectorAll('div')].find((div) => div.className.includes('explanation')) ?? document.createElement('div')
+        const explanation = [...questionElement.querySelectorAll('div')].find((div) => div.className.match(/overall-explanation-pane--overall-explanation--/)) ?? document.createElement('div')
         assertTrue(explanation, 105)
 
         // 質問文
@@ -383,15 +382,16 @@ const initialize = () => {
         const explanationHtml = e.innerHTML
         const explanationArray = element2text(e)
         // 選択肢
-        const choiceTexts = choiceLabelElements.map(cc => cc.textContent.replace(/\(正解\)|\(不正解\)/, ''))
+        const choiceTexts = [...questionElement.querySelectorAll('div[data-purpose="answer-body"] p')]
 
         // ラジオボタン
-        const radioElements = [...questionElement.querySelectorAll('input[type="radio"]')]
+        const radioElements = [...questionElement.querySelectorAll('div[data-purpose="answer-body"] use')]
         assertTrue(radioElements, 108)
+        console.log('radioElements: ', radioElements)
 
         // チェックボックス
-        const checkboxSvgElements = [...questionElement.querySelectorAll('svg')]
-        assertTrue(checkboxSvgElements, 109)
+        // const checkboxSvgElements = [...questionElement.querySelectorAll('svg')]
+        // assertTrue(checkboxSvgElements, 109)
 
         // questionsに追加するオブジェクト（各プロパティの意味はこのファイル上部を参照）
         const question = {
@@ -539,15 +539,15 @@ const toggleTheatreCss = () => {
 }
 
 const assertTrue = (e, errorCode) => {
-//     if (!e) {
-//         errorCodes.add(errorCode)
-//         openDialog(`Udemyの仕様変更により、拡張機能が正常に実行できません。
-// <a target="_blank" href="https://twitter.com/messages/compose?recipient_id=977451452099514369&text=Udemy Interactiveでエラーコード ${[...errorCodes].join(', ')} が発生しました！">@Michin0suke</a>までご連絡をお願いいたします。
+    if (!e) {
+        errorCodes.add(errorCode)
+        openDialog(`Udemyの仕様変更により、拡張機能が正常に実行できません。
+<a target="_blank" href="https://twitter.com/messages/compose?recipient_id=977451452099514369&text=Udemy Interactiveでエラーコード ${[...errorCodes].join(', ')} が発生しました！">@Michin0suke</a>までご連絡をお願いいたします。
 
-// <a target="_blank" href="https://twitter.com/messages/compose?recipient_id=977451452099514369&text=Udemy Interactiveでエラーコード ${[...errorCodes].join(', ')} が発生しました！"><button>エラーを報告する</button></a>
+<a target="_blank" href="https://twitter.com/messages/compose?recipient_id=977451452099514369&text=Udemy Interactiveでエラーコード ${[...errorCodes].join(', ')} が発生しました！"><button>エラーを報告する</button></a>
 
-// エラーコード: ${[...errorCodes].join(', ')}`)
-//     }
+エラーコード: ${[...errorCodes].join(', ')}`)
+    }
 }
 
 const closeDialog = () => {
@@ -678,19 +678,24 @@ const shuffle = ([...array]) => {
     }
     return array;
 }
-  
+
+
+// const getElementByClassRegex = (regex) => {
+//     return [...document.querySelectorAll('*')].find(e => e.classList.some(c => regex.test(c)))
+// }
 
 // 問題の見直し画面でローディングが終わるのを監視する。
 const waitAppearQuestionsId = setInterval(() => {
-    detailedResultPanel = document.querySelector("div[data-purpose='detailed-result-panel']")
-    if (detailedResultPanel && detailedResultPanel.dataset.udemyInteractive !== "initialized") {
+    const h2 = document.querySelector("div.quiz-page-content h2[data-purpose='title']")
+    if (h2 && h2.dataset.udemyInteractive !== "initialized") {
         // ローディングが終了すると実行される
-        detailedResultPanel.dataset.udemyInteractive = "initialized"
+        h2.dataset.udemyInteractive = "initialized"
         initialize() // 初期処理
         setMode('ICHIMON_ITTO') // 初期モードは一問一答
         // clearInterval(waitAppearQuestionsId) // 監視のsetIntervalを解除する
     }
 }, 300)
+
 
 const spin = `<?xml version="1.0" encoding="utf-8"?>
 <svg width='32px' height='32px' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" class="uil-spin">
