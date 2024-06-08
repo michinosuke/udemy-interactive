@@ -1,186 +1,52 @@
 .display-none {
-    max-height: 0;
-    overflow-y: hidden;
-    opacity: 0;
-    transition: max-height .8s ease, opacity .3s ease;
+  max-height: 0;
+  overflow-y: hidden;
+  opacity: 0;
+  transition: max-height 0.8s ease, opacity 0.3s ease;
 }
 .display-active {
-    max-height: 1000vh;
-    opacity: 1;
-    transition: max-height 3s ease, opacity .5s ease;
+  max-height: 1000vh;
+  opacity: 1;
+  transition: max-height 3s ease, opacity 0.5s ease;
 }
-.display-none-simple {
-    display: none;
+.ui-question {
+  padding-top: 20px;
 }
-.display-active-simple {
-    display: block;
+.ui-choice {
+  cursor: pointer;
 }
-.margin-padding-0 {
-    margin: 0 !important;
-    padding: 0 !important;
+.ui-choice.correct {
+  background-color: #cae1ff;
+  color: #333;
+  transition: all 0.2s ease;
 }
-
-.ui-correct {
-    background-color: #c5deff;
-    transition: all .2s ease;
+.ui-choice.correct:hover {
+  background-color: rgb(184, 214, 255);
 }
-.ui-correct p:last-child:after {
-    color: #777;
-    font-size: 12px;
-    content: '(正解)'
+.ui-choice.correct #answer-text:last-child:after {
+  color: #777;
+  font-size: 12px;
+  content: "(正解)";
+  padding: 0 3px;
 }
-.ui-incorrect {
-    background-color: #ffded6;
-    transition: all .2s ease;
+.ui-choice.incorrect {
+  background-color: #ffded6;
+  color: #333;
+  transition: all 0.2s ease;
 }
-.ui-incorrect p:last-child:after {
-    color: #777;
-    font-size: 12px;
-    content: '(不正解)'
+.ui-choice.incorrect:hover {
+  background-color: #ffcfc3;
 }
-.choice .ud-heading-md.udlite-heading-md {
-    user-select: text;
-    z-index: 100;
+.ui-choice.incorrect #answer-text:last-child:after {
+  color: #777;
+  font-size: 12px;
+  content: "(不正解)";
+  padding: 0 3px;
 }
-.choice:hover {
-    background-color: #fafafa;
+.ui-choice.selected {
+  border: solid 1px #555;
+  transition: border 0.1s ease;
 }
-
-.background-none {
-    background-color: transparent;
-    transition: all .5s ease;
-}
-
-.checkbox-svg-active {
-    color: white !important;
-    background-color: black !important;
-    fill: white !important;
-    transition: all .2s ease;
-}
-
-.checkbox-svg-none {
-    color: transparent !important;
-    background-color: transparent !important;
-    fill: transparent !important;
-    transition: all .2s ease;
-}
-
-/* .ui-selected {
-    border: solid 2px #333;
-    transition: border .1s ease;
-} */
-
-.mode-button.selected {
-    background-color: black;
-    color: white !important;
-    font-weight: bold;
-    /* pointer-events: none; */
-    transition: all .3s ease;
-}
-.mode-button.selected:hover {
-    background-color: black;
-}
-
-.udlite-toggle-input-disabled {
-    cursor: pointer !important
-}
-
-.correct-layer {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-}
-
-.scaled-height-limiter.hidden {
-    max-height: none !important;
-    position: static !important;
-}
-.footer-container.hidden {
-    max-height: 0 !important;
-    overflow: hidden !important;
-}
-.dashboard.hidden {
-    max-height: 0 !important;
-    overflow: hidden !important;
-}
-.aspect-ratio-container.hidden {
-    padding-top: 0 !important;
-}
-
-.answer-time {
-    opacity: 0;
-    transition: opacity ease 5s;
-}
-.answer-time.active {
-    opacity: 1;
-    transition: opacity ease .2s;
-}
-
-.question {
-    transform: translateY(0px);
-    opacity: 1;
-    transition: all .25s ease-in;
-}
-.question.shuffle-out {
-    transform: translateY(80vh);
-    opacity: 0;
-    transition: all .25s ease-in;
-}
-.question.shuffle-in {
-    transform: translateY(80vh);
-    opacity: 0;
-    transition: all .25s ease-out;
-}
-/* .question.hover {
-    transform: scale(1.05);
-} */
-@keyframes hover {
-    0% { opacity: 1 }
-    50% { opacity: 0.5 }
-    100% { opacity: 1 }
-}
-
-/* body {
-    position: relative;
-    width: 100%;
-    height: 100%;
-} */
-
-.dialog {
-    position: absolute;
-    background-color: white;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: inline-block;
-    max-width: 500px;
-    max-height: 300px;
-    height: auto;
-    padding: 10px 20px;
-    margin: 100px auto 0;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-    border-radius: 3px;
-}
-.dialog.hidden {
-    display: none;
-}
-.dialog button {
-    cursor: pointer;
-}
-.dialog .close-button {
-    display: inline-block;
-    /* width: 20px;
-    height: 20px;
-    text-align: center; */
-}
-.dialog p {
-    white-space: pre-wrap;
-    margin: 10px 0;
-}
-
-.ud-toggle-input-block-outline {
-    cursor: pointer;
+.ui-choice:hover {
+  background-color: #fbfbfb;
 }

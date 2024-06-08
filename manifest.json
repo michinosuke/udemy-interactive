@@ -1,21 +1,19 @@
 {
-    "manifest_version": 3,
-    "version": "3.5",
-    "name": "Udemy Interactive",
-    "description": "Udemyの問題を一問一答で解くことができます。",
-    "icons": {
-      "16": "icon16.png",
-      "48": "icon48.png",
-      "128": "icon128.png"
-    },
-    "host_permissions": [
-        "https://www.udemy.com/*"
-    ],
-    "content_scripts": [
-        {
-            "matches": ["https://www.udemy.com/*"],
-            "js": ["script.js"],
-            "css": ["style.css"]
-        }
-    ]
+  "manifest_version": 3,
+  "version": "4.0",
+  "name": "Udemy Interactive",
+  "description": "Udemyの問題を一問一答で解くことができます。",
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "host_permissions": ["https://www.udemy.com/*"],
+  "content_scripts": [
+    {
+      "matches": ["https://www.udemy.com/*"],
+      "js": ["script.js"],
+      "css": ["style.css"]
+    }
+  ]
 }
